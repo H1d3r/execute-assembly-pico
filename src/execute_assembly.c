@@ -216,7 +216,7 @@ void test_load_runtime() {
 	result = get_runtime(&assemblyData);
 	ASSERT(result == S_OK, "test_load_runtime: Could not retrieve the runtime interface.");
 	result = load_runtime(&assemblyData);
-	ASSERT(result == S_OK, "test_load_runtime: Could not load an initialise the hosted CLR.");
+	ASSERT(result == S_OK, "test_load_runtime: Could not load and initialise the hosted CLR.");
 }
 
 HRESULT go_tests() {
