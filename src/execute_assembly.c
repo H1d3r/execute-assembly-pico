@@ -219,7 +219,7 @@ void test_load_runtime() {
 	ASSERT(result == S_OK, "test_load_runtime: Could not load an initialise the hosted CLR.");
 }
 
-HRESULT go_tests(char *raw_assembly, size_t assembly_len, WCHAR *argv[], int argc) {
+HRESULT go_tests() {
 	TESTFUNC tests[] = {
 		(TESTFUNC) test_get_clr,
 		(TESTFUNC) test_get_runtime,
@@ -232,7 +232,7 @@ HRESULT go_tests(char *raw_assembly, size_t assembly_len, WCHAR *argv[], int arg
 
 HRESULT go(char *raw_assembly, size_t assembly_len, WCHAR *argv[], int argc) {
 	#ifdef CPLTESTS
-	return go_tests(raw_assembly, assembly_len, argv, argc);
+	return go_tests();
 	#else
 	return go_pico(raw_assembly, assembly_len, argv, argc);
 	#endif
