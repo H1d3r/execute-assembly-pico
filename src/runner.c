@@ -7,8 +7,8 @@ WINBASEAPI LPVOID WINAPI KERNEL32$GetProcAddress(HMODULE hModule, LPCSTR lpProcN
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
-char * resolve(DWORD modHash, DWORD funcHash) {
-    char * hModule = (char *)findModuleByHash(modHash);
+FARPROC resolve(DWORD modHash, DWORD funcHash) {
+    HANDLE hModule = findModuleByHash(modHash);
     return findFunctionByHash(hModule, funcHash);
 }
 
