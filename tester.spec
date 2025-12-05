@@ -3,6 +3,16 @@ x64:
 	load "bin/runner.o"
 	make pic +optimize +gofirst
 	
+	# Patch in arguments to the .NET assembly.
+	push $ARG0
+	link "arg_0"
+	push $ARG1
+	link "arg_1"
+	push $ARG2
+	link "arg_2"
+	push $ARG3
+	link "arg_3"
+	
 	# Merge in libraries.
 	mergelib "lib/libtcg/libtcg.x64.zip"
 	
