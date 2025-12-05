@@ -2,10 +2,10 @@
 #include "execute_assembly.h"
 #include "headers/tcg.h"
 
-WCHAR __ARG_0__[256] __attribute__((section("arg_0")));
-WCHAR __ARG_1__[256] __attribute__((section("arg_1")));
-WCHAR __ARG_2__[256] __attribute__((section("arg_2")));
-WCHAR __ARG_3__[256] __attribute__((section("arg_3")));
+WCHAR __ARG_0__[256] __attribute__((section(".rdata")));
+WCHAR __ARG_1__[256] __attribute__((section(".rdata")));
+WCHAR __ARG_2__[256] __attribute__((section(".rdata")));
+WCHAR __ARG_3__[256] __attribute__((section(".rdata")));
 
 WINBASEAPI HMODULE WINAPI KERNEL32$LoadLibraryA(LPCSTR lpLibFileName);
 WINBASEAPI LPVOID WINAPI KERNEL32$GetProcAddress(HMODULE hModule, LPCSTR lpProcName);
@@ -77,8 +77,8 @@ void go() {
 	// Get a pointer to the section containing our PICO.
 	char *pico = findAppendedPICO();
 	
-	// Hardcoded args for the assembly. I don't currently know of a better way to pass these with Crystal Palace.
-	WCHAR *argv[4];
+	// Arguments to pass to the assembly.
+	WCHAR *argv[5];
 	argv[0] = (WCHAR *)&__ARG_0__;
 	argv[1] = (WCHAR *)&__ARG_1__;
 	argv[2] = (WCHAR *)&__ARG_2__;
