@@ -3,10 +3,6 @@ x64:
 	load "bin/runner.o"
 	make pic +optimize +gofirst
 	
-	# Patch in arguments to the .NET assembly.
-	pack $CMDLINE_BYTES "Z" %CMDLINE
-	patch "__CMDLINE__" $CMDLINE_BYTES
-	
 	# Merge in LibTCG.
 	mergelib "lib/libtcg/libtcg.x64.zip"
 	
@@ -27,6 +23,10 @@ x64:
 	load %ASSEMBLY_PATH
 	preplen
 	link "my_assembly"
+	
+	# Patch in arguments to the .NET assembly.
+	pack $CMDLINE_BYTES "Z" %CMDLINE
+	patch "__CMDLINE__" $CMDLINE_BYTES
 	
 	# Export the resulting PIC.
 	export
