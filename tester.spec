@@ -4,16 +4,15 @@ x64:
 	make pic +optimize +gofirst
 	
 	# Patch in arguments to the .NET assembly.
-	patch "__ARG_0__" $ARG0
-	patch "__ARG_1__" $ARG1
-	patch "__ARG_2__" $ARG2
-	patch "__ARG_3__" $ARG3
+	pack $CMDLINE_BYTES "Z" %CMDLINE
+	patch "__CMDLINE__" $CMDLINE_BYTES
 	
 	# Merge in libraries.
 	mergelib "lib/libtcg/libtcg.x64.zip"
 	
 	# Opt into dynamic function resolution using the resolve() function.
-	dfr "resolve" "ror13"
+	dfr "resolve" "ror13" "KERNEL32, NTDLL"
+	dfr "resolve_unloaded" "strings"
 	
 	# Load the PICO
 	load "bin/execute_assembly.test.o"

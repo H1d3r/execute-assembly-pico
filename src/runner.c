@@ -2,19 +2,26 @@
 #include "execute_assembly.h"
 #include "headers/tcg.h"
 
-WCHAR __ARG_0__[256] __attribute__((section(".rdata")));
-WCHAR __ARG_1__[256] __attribute__((section(".rdata")));
-WCHAR __ARG_2__[256] __attribute__((section(".rdata")));
-WCHAR __ARG_3__[256] __attribute__((section(".rdata")));
+WCHAR __CMDLINE__[1024] __attribute__((section(".rdata")));
 
+WINBASEAPI HANDLE WINAPI KERNEL32$GetModuleHandleA(LPCSTR lpModuleName);
 WINBASEAPI HMODULE WINAPI KERNEL32$LoadLibraryA(LPCSTR lpLibFileName);
 WINBASEAPI LPVOID WINAPI KERNEL32$GetProcAddress(HMODULE hModule, LPCSTR lpProcName);
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
+WINBASEAPI LPWSTR * WINAPI SHELL32$CommandLineToArgvW(LPCWSTR lpCmdLine, int *pNumArgs);
 
 FARPROC resolve(DWORD modHash, DWORD funcHash) {
     HANDLE hModule = findModuleByHash(modHash);
     return findFunctionByHash(hModule, funcHash);
+}
+
+FARPROC resolve_unloaded(char * mod, char * func) {
+  HANDLE hModule = KERNEL32$GetModuleHandleA(mod);
+  if (hModule == NULL) {
+    hModule = KERNEL32$LoadLibraryA(mod);
+  }
+  return KERNEL32$GetProcAddress(hModule, func);
 }
 
 typedef struct {
@@ -78,12 +85,9 @@ void go() {
 	char *pico = findAppendedPICO();
 	
 	// Arguments to pass to the assembly.
-	WCHAR *argv[5];
-	argv[0] = (WCHAR *)&__ARG_0__;
-	argv[1] = (WCHAR *)&__ARG_1__;
-	argv[2] = (WCHAR *)&__ARG_2__;
-	argv[3] = (WCHAR *)&__ARG_3__;
-	size_t argc = 4;
+	int argc;
+	LPCWSTR cmdline = (LPCWSTR)&__CMDLINE__;
+	LPWSTR *argv = SHELL32$CommandLineToArgvW(cmdline, &argc);
 	
 	// Run the PICO.
 	run_clr_pico(&funcs, pico, argv, argc);
