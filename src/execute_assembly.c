@@ -3,8 +3,7 @@
 #include "headers/clr.h"
 #include "headers/guid.h"
 #include "headers/tcg.h"
-#include "headers/cpltest.h"
-  
+
 WINBASEAPI HRESULT MSCOREE$CLRCreateInstance(REFCLSID clsid, REFIID riid, LPVOID *ppInterface);
 WINBASEAPI SAFEARRAY * OLEAUT32$SafeArrayCreate(VARTYPE vt, UINT cDims, SAFEARRAYBOUND *rgsabound);
 WINBASEAPI HRESULT OLEAUT32$SafeArrayDestroy(SAFEARRAY *psa);
@@ -158,7 +157,15 @@ void release_assembly(AssemblyData* assemblyData) {
 	if (assemblyData->metaHost != NULL) { assemblyData->metaHost->lpVtbl->Release(assemblyData->metaHost); }
 }
 
-HRESULT go_pico(char *raw_assembly, size_t assembly_len, WCHAR *argv[], int argc) {
+#ifdef CPLTESTS
+#include "execute_assembly_tests.h"
+#endif
+
+HRESULT go(char *raw_assembly, size_t assembly_len, WCHAR *argv[], int argc) {
+	#ifdef CPLTESTS
+	return execute_assembly_tests();
+	#endif
+	
 	HRESULT result;
 	AssemblyData assemblyData = { 0 };
 
@@ -189,65 +196,4 @@ HRESULT go_pico(char *raw_assembly, size_t assembly_len, WCHAR *argv[], int argc
 	OLEAUT32$SafeArrayDestroy(params);
 	release_assembly(&assemblyData);
 	return result;
-}
-
-#ifdef CPLTESTS
-void test_get_clr() {
-	HRESULT result;
-	AssemblyData assemblyData = { 0 };
-	result = get_clr(&assemblyData);
-	ASSERT(result == S_OK, "test_get_clr: Could not retrieve the CLR.");
-}
-
-void test_get_runtime() {
-	HRESULT result;
-	AssemblyData assemblyData = { 0 };
-	result = get_clr(&assemblyData);
-	ASSERT(result == S_OK, "test_get_runtime: Could not retrieve the CLR.");
-	result = get_runtime(&assemblyData);
-	ASSERT(result == S_OK, "test_get_runtime: Could not retrieve the runtime interface.");
-}
-
-void test_load_runtime() {
-	HRESULT result;
-	AssemblyData assemblyData = { 0 };
-	result = get_clr(&assemblyData);
-	ASSERT(result == S_OK, "test_load_runtime: Could not retrieve the CLR.");
-	result = get_runtime(&assemblyData);
-	ASSERT(result == S_OK, "test_load_runtime: Could not retrieve the runtime interface.");
-	result = load_runtime(&assemblyData);
-	ASSERT(result == S_OK, "test_load_runtime: Could not load and initialise the hosted CLR.");
-}
-
-void test_get_default_appdomain() {
-	HRESULT result;
-	AssemblyData assemblyData = { 0 };
-	result = get_clr(&assemblyData);
-	ASSERT(result == S_OK, "test_get_default_appdomain: Could not retrieve the CLR.");
-	result = get_runtime(&assemblyData);
-	ASSERT(result == S_OK, "test_get_default_appdomain: Could not retrieve the runtime interface.");
-	result = load_runtime(&assemblyData);
-	ASSERT(result == S_OK, "test_get_default_appdomain: Could not load and initialise the hosted CLR.");
-	result = get_default_appdomain(&assemblyData);
-	ASSERT(result == S_OK, "test_get_default_appdomain: Could not retrieve the default AppDomain.");
-}
-
-HRESULT go_tests() {
-	TESTFUNCS tests = initTests();
-	addTest(&tests, test_get_clr);
-	addTest(&tests, test_get_runtime);
-	addTest(&tests, test_load_runtime);
-	addTest(&tests, test_get_default_appdomain);
-	runTests(&tests);
-	freeTests(&tests);
-	return S_OK;
-}
-#endif
-
-HRESULT go(char *raw_assembly, size_t assembly_len, WCHAR *argv[], int argc) {
-	#ifdef CPLTESTS
-	return go_tests();
-	#else
-	return go_pico(raw_assembly, assembly_len, argv, argc);
-	#endif
 }
